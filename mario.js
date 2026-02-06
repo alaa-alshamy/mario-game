@@ -216,21 +216,21 @@ document.addEventListener('keyup', (e) => {
 
 // Fullscreen toggle function
 function toggleFullscreen() {
-    const gameWrapper = document.getElementById('gameWrapper');
+    const docEl = document.documentElement;
     
     if (!document.fullscreenElement && 
         !document.mozFullScreenElement && 
         !document.webkitFullscreenElement && 
         !document.msFullscreenElement) {
-        // Enter fullscreen
-        if (gameWrapper.requestFullscreen) {
-            gameWrapper.requestFullscreen();
-        } else if (gameWrapper.msRequestFullscreen) {
-            gameWrapper.msRequestFullscreen();
-        } else if (gameWrapper.mozRequestFullScreen) {
-            gameWrapper.mozRequestFullScreen();
-        } else if (gameWrapper.webkitRequestFullscreen) {
-            gameWrapper.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        // Enter fullscreen on entire document (not just game wrapper)
+        if (docEl.requestFullscreen) {
+            docEl.requestFullscreen();
+        } else if (docEl.msRequestFullscreen) {
+            docEl.msRequestFullscreen();
+        } else if (docEl.mozRequestFullScreen) {
+            docEl.mozRequestFullScreen();
+        } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         }
     } else {
         // Exit fullscreen
