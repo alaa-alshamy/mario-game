@@ -214,42 +214,130 @@ document.addEventListener('keyup', (e) => {
     keys[e.key] = false;
 });
 
+// Fullscreen toggle function
+function toggleFullscreen() {
+    const gameWrapper = document.getElementById('gameWrapper');
+    
+    if (!document.fullscreenElement && 
+        !document.mozFullScreenElement && 
+        !document.webkitFullscreenElement && 
+        !document.msFullscreenElement) {
+        // Enter fullscreen
+        if (gameWrapper.requestFullscreen) {
+            gameWrapper.requestFullscreen();
+        } else if (gameWrapper.msRequestFullscreen) {
+            gameWrapper.msRequestFullscreen();
+        } else if (gameWrapper.mozRequestFullScreen) {
+            gameWrapper.mozRequestFullScreen();
+        } else if (gameWrapper.webkitRequestFullscreen) {
+            gameWrapper.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
+    } else {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
+}
+
+// Update fullscreen button text
+function updateFullscreenButton() {
+    const btn = document.getElementById('fullscreenBtn');
+    if (document.fullscreenElement || 
+        document.mozFullScreenElement || 
+        document.webkitFullscreenElement || 
+        document.msFullscreenElement) {
+        btn.innerHTML = '⛶ Exit Fullscreen';
+    } else {
+        btn.innerHTML = '⛶ Fullscreen';
+    }
+}
+
+// Listen for fullscreen changes
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+
 // Responsive canvas setup
 function resizeCanvas() {
-    const container = document.querySelector('.game-container');
     const canvas = document.getElementById('gameCanvas');
     const touchControls = document.getElementById('touchControls');
+    const gameWrapper = document.getElementById('gameWrapper');
+    const uiPanel = document.getElementById('uiPanel');
     
     isMobile = checkMobile();
     
-    if (isMobile) {
-        // Show touch controls
-        touchControls.classList.add('active');
+    // Check if in fullscreen
+    const isFullscreen = document.fullscreenElement || 
+                        document.mozFullScreenElement || 
+                        document.webkitFullscreenElement || 
+                        document.msFullscreenElement;
+    
+    if (isFullscreen) {
+        // In fullscreen - fill entire screen
+        touchControls.style.display = 'flex';
         document.querySelector('.keyboard-hint').style.display = 'none';
         document.querySelector('.touch-hint').style.display = 'block';
         
-        // Calculate available space
-        const controlsHeight = touchControls.classList.contains('active') ? 120 : 0;
-        const uiHeight = 150; // Space for score and buttons
-        const availableHeight = window.innerHeight - uiHeight - controlsHeight - 40;
-        const availableWidth = window.innerWidth - 40;
+        // Make canvas fill the screen while maintaining aspect ratio
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const aspectRatio = 800 / 600;
+        
+        let newWidth = screenWidth;
+        let newHeight = screenWidth / aspectRatio;
+        
+        if (newHeight > screenHeight) {
+            newHeight = screenHeight;
+            newWidth = screenHeight * aspectRatio;
+        }
+        
+        canvas.style.width = newWidth + 'px';
+        canvas.style.height = newHeight + 'px';
+        
+    } else if (isMobile) {
+        // Mobile not in fullscreen
+        touchControls.style.display = 'flex';
+        document.querySelector('.keyboard-hint').style.display = 'none';
+        document.querySelector('.touch-hint').style.display = 'block';
+        
+        // Calculate available space accounting for UI and controls
+        const uiHeight = uiPanel.offsetHeight || 100;
+        const controlsHeight = 100; // Approximate touch controls height
+        const padding = 20;
+        
+        const availableHeight = window.innerHeight - uiHeight - controlsHeight - padding;
+        const availableWidth = window.innerWidth - padding;
         
         // Calculate scale to fit canvas
         const scaleX = availableWidth / 800;
         const scaleY = availableHeight / 600;
-        const scale = Math.min(scaleX, scaleY, 1);
+        const scale = Math.min(scaleX, scaleY);
         
         // Apply size
         canvas.style.width = (800 * scale) + 'px';
         canvas.style.height = (600 * scale) + 'px';
+        
     } else {
         // Desktop view
-        touchControls.classList.remove('active');
+        touchControls.style.display = 'none';
         document.querySelector('.keyboard-hint').style.display = 'block';
         document.querySelector('.touch-hint').style.display = 'none';
         
-        const maxWidth = Math.min(window.innerWidth - 40, 800);
-        const scale = maxWidth / 800;
+        const gameContainer = document.getElementById('gameContainer');
+        const containerHeight = gameContainer.clientHeight - 40;
+        const containerWidth = gameContainer.clientWidth - 40;
+        
+        const scaleX = containerWidth / 800;
+        const scaleY = containerHeight / 600;
+        const scale = Math.min(scaleX, scaleY, 1.2); // Max 1.2x scale on desktop
         
         canvas.style.width = (800 * scale) + 'px';
         canvas.style.height = (600 * scale) + 'px';
@@ -257,12 +345,6 @@ function resizeCanvas() {
 }
 
 // Handle orientation change
-window.addEventListener('orientationchange', () => {
-    setTimeout(resizeCanvas, 100);
-});
-
-window.addEventListener('resize', resizeCanvas);
-
 // Mario object
 const mario = {
     x: 100,
@@ -1770,9 +1852,11 @@ function restartGame() {
     animationId = requestAnimationFrame(gameLoop);
 }
 
-// Make touch functions global for HTML onclick handlers
+// Make functions global for HTML onclick handlers
 window.handleTouchStart = handleTouchStart;
 window.handleTouchEnd = handleTouchEnd;
+window.toggleFullscreen = toggleFullscreen;
+window.toggleSound = toggleSound;
 
 // Start the game
 window.onload = function() {
@@ -1816,4 +1900,10 @@ document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
         // Optional: pause game logic here if needed
     }
+});
+
+// Handle resize and orientation change
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', function() {
+    setTimeout(resizeCanvas, 100);
 });
