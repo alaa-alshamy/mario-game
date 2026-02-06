@@ -19,69 +19,48 @@
             overflow: hidden;
             background: #000;
             font-family: 'Arial', sans-serif;
+            position: fixed;
         }
 
         #gameWrapper {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         }
 
-        #gameContainer {
-            flex: 1;
+        /* Top bar with buttons - always visible */
+        #topBar {
+            flex-shrink: 0;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.4);
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            position: relative;
-            padding: 10px;
-            min-height: 0;
+            gap: 10px;
+            z-index: 200;
         }
 
-        #gameCanvas {
-            background: #5c94fc;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            display: block;
-        }
-
-        #uiPanel {
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            text-align: center;
-            color: white;
-        }
-
-        .score {
-            font-size: clamp(14px, 4vw, 24px);
+        .game-title {
             color: #ffd700;
             font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .controls-hint {
-            font-size: clamp(10px, 3vw, 16px);
-            margin-bottom: 8px;
-            opacity: 0.9;
+            font-size: clamp(14px, 4vw, 20px);
+            white-space: nowrap;
         }
 
         .button-group {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 8px;
+            flex-wrap: nowrap;
         }
 
         button {
-            padding: 8px 16px;
-            font-size: clamp(12px, 3vw, 16px);
+            padding: 6px 12px;
+            font-size: clamp(11px, 3vw, 14px);
             background: #e52521;
             color: white;
             border: none;
@@ -89,6 +68,7 @@
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
+            min-width: 70px;
         }
 
         button:hover, button:active {
@@ -104,17 +84,62 @@
             background: #27ae60;
         }
 
-        /* Touch Controls */
+        /* Score bar below top bar */
+        #scoreBar {
+            flex-shrink: 0;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: white;
+            z-index: 200;
+        }
+
+        .score {
+            font-size: clamp(12px, 3.5vw, 18px);
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .controls-hint {
+            font-size: clamp(9px, 2.5vw, 12px);
+            margin-top: 2px;
+            opacity: 0.9;
+        }
+
+        /* Game container takes remaining space */
+        #gameContainer {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            min-height: 0;
+            padding: 5px;
+        }
+
+        #gameCanvas {
+            background: #5c94fc;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            display: block;
+        }
+
+        /* Touch Controls - at bottom */
         #touchControls {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 10px 20px 20px;
+            padding: 10px 15px 15px;
             display: none;
             justify-content: space-between;
             align-items: flex-end;
-            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
             pointer-events: none;
             z-index: 100;
         }
@@ -124,15 +149,15 @@
         }
 
         .touch-btn {
-            width: clamp(60px, 15vw, 80px);
-            height: clamp(60px, 15vw, 80px);
+            width: clamp(55px, 14vw, 70px);
+            height: clamp(55px, 14vw, 70px);
             background: rgba(255, 255, 255, 0.25);
             border: 3px solid rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: clamp(24px, 6vw, 36px);
+            font-size: clamp(22px, 5.5vw, 32px);
             color: white;
             pointer-events: auto;
             user-select: none;
@@ -148,11 +173,11 @@
         }
 
         .touch-btn.jump {
-            width: clamp(75px, 18vw, 100px);
-            height: clamp(75px, 18vw, 100px);
+            width: clamp(70px, 16vw, 90px);
+            height: clamp(70px, 16vw, 90px);
             background: rgba(229, 37, 33, 0.6);
             border-color: rgba(229, 37, 33, 0.95);
-            font-size: clamp(30px, 7vw, 42px);
+            font-size: clamp(28px, 6.5vw, 38px);
         }
 
         .touch-btn.jump:active {
@@ -161,13 +186,26 @@
 
         .d-pad {
             display: flex;
-            gap: clamp(10px, 3vw, 20px);
+            gap: clamp(8px, 2.5vw, 15px);
             pointer-events: auto;
         }
 
         /* Fullscreen styles */
         #gameWrapper:fullscreen {
             background: #000;
+        }
+
+        #gameWrapper:fullscreen #topBar,
+        #gameWrapper:fullscreen #scoreBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        #gameWrapper:fullscreen #scoreBar {
+            top: 50px;
         }
 
         #gameWrapper:fullscreen #gameContainer {
@@ -186,6 +224,19 @@
             background: #000;
         }
 
+        #gameWrapper:-webkit-full-screen #topBar,
+        #gameWrapper:-webkit-full-screen #scoreBar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        #gameWrapper:-webkit-full-screen #scoreBar {
+            top: 50px;
+        }
+
         #gameWrapper:-webkit-full-screen #gameContainer {
             padding: 0;
         }
@@ -196,18 +247,6 @@
             max-width: none;
             max-height: none;
             object-fit: contain;
-        }
-
-        /* Hide UI in fullscreen on mobile */
-        #gameWrapper:fullscreen #uiPanel,
-        #gameWrapper:-webkit-full-screen #uiPanel {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            z-index: 200;
         }
 
         /* Show touch controls on mobile/tablet */
@@ -227,17 +266,23 @@
         }
 
         /* Landscape mode optimization */
-        @media (max-height: 500px) and (orientation: landscape) {
-            #uiPanel {
-                padding: 5px;
+        @media (max-height: 450px) and (orientation: landscape) {
+            #topBar {
+                padding: 4px 8px;
             }
             
-            .score {
-                margin-bottom: 4px;
+            #scoreBar {
+                padding: 3px 8px;
             }
             
             button {
-                padding: 5px 10px;
+                padding: 4px 8px;
+                font-size: 10px;
+                min-width: 60px;
+            }
+            
+            .game-title {
+                font-size: 12px;
             }
         }
 
@@ -254,24 +299,32 @@
 </head>
 <body>
     <div id="gameWrapper">
-        <div id="gameContainer">
-            <canvas id="gameCanvas" width="800" height="600"></canvas>
-        </div>
-        
-        <div id="uiPanel">
-            <div class="score">Level: <span id="levelValue">1</span> | Score: <span id="scoreValue">0</span> | Coins: <span id="coinValue">0</span></div>
-            <div class="controls-hint">
-                <span class="keyboard-hint">⌨️ Arrow keys to move, Space/Up to jump</span>
-                <span class="touch-hint" style="display: none;">👆 Use on-screen buttons to play</span>
-            </div>
+        <!-- Top bar with title and buttons -->
+        <div id="topBar">
+            <div class="game-title">🍄 Mario Game</div>
             <div class="button-group">
                 <button onclick="restartGame()">🔄 Restart</button>
                 <button onclick="toggleSound()" id="soundBtn">🔊 Sound</button>
-                <button onclick="toggleFullscreen()" id="fullscreenBtn">⛶ Fullscreen</button>
+                <button onclick="toggleFullscreen()" id="fullscreenBtn">⛶ Full</button>
             </div>
+        </div>
+        
+        <!-- Score bar -->
+        <div id="scoreBar">
+            <div class="score">Level: <span id="levelValue">1</span> | Score: <span id="scoreValue">0</span> | Coins: <span id="coinValue">0</span></div>
+            <div class="controls-hint">
+                <span class="keyboard-hint">⌨️ Arrow keys to move, Space/Up to jump</span>
+                <span class="touch-hint" style="display: none;">👆 Use on-screen buttons</span>
+            </div>
+        </div>
+
+        <!-- Game area -->
+        <div id="gameContainer">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
         </div>
     </div>
 
+    <!-- Touch controls overlay -->
     <div id="touchControls">
         <div class="d-pad">
             <div class="touch-btn" id="btnLeft" ontouchstart="handleTouchStart('left')" ontouchend="handleTouchEnd('left')" onmousedown="handleTouchStart('left')" onmouseup="handleTouchEnd('left')" onmouseleave="handleTouchEnd('left')">←</div>

@@ -269,8 +269,8 @@ document.addEventListener('MSFullscreenChange', updateFullscreenButton);
 function resizeCanvas() {
     const canvas = document.getElementById('gameCanvas');
     const touchControls = document.getElementById('touchControls');
-    const gameWrapper = document.getElementById('gameWrapper');
-    const uiPanel = document.getElementById('uiPanel');
+    const topBar = document.getElementById('topBar');
+    const scoreBar = document.getElementById('scoreBar');
     
     isMobile = checkMobile();
     
@@ -308,12 +308,13 @@ function resizeCanvas() {
         document.querySelector('.keyboard-hint').style.display = 'none';
         document.querySelector('.touch-hint').style.display = 'block';
         
-        // Calculate available space accounting for UI and controls
-        const uiHeight = uiPanel.offsetHeight || 100;
+        // Calculate available space accounting for top bar, score bar and controls
+        const topBarHeight = topBar ? topBar.offsetHeight : 50;
+        const scoreBarHeight = scoreBar ? scoreBar.offsetHeight : 50;
         const controlsHeight = 100; // Approximate touch controls height
         const padding = 20;
         
-        const availableHeight = window.innerHeight - uiHeight - controlsHeight - padding;
+        const availableHeight = window.innerHeight - topBarHeight - scoreBarHeight - controlsHeight - padding;
         const availableWidth = window.innerWidth - padding;
         
         // Calculate scale to fit canvas
@@ -332,8 +333,10 @@ function resizeCanvas() {
         document.querySelector('.touch-hint').style.display = 'none';
         
         const gameContainer = document.getElementById('gameContainer');
-        const containerHeight = gameContainer.clientHeight - 40;
-        const containerWidth = gameContainer.clientWidth - 40;
+        const topBarHeight = topBar ? topBar.offsetHeight : 50;
+        const scoreBarHeight = scoreBar ? scoreBar.offsetHeight : 50;
+        const containerHeight = gameContainer.clientHeight - 20;
+        const containerWidth = gameContainer.clientWidth - 20;
         
         const scaleX = containerWidth / 800;
         const scaleY = containerHeight / 600;
