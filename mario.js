@@ -283,6 +283,7 @@ function resizeCanvas() {
     if (isFullscreen) {
         // In fullscreen - fill entire screen
         touchControls.style.display = 'flex';
+        touchControls.style.zIndex = '9999'; // Ensure controls are on top
         document.querySelector('.keyboard-hint').style.display = 'none';
         document.querySelector('.touch-hint').style.display = 'block';
         

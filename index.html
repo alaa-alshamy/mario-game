@@ -208,6 +208,13 @@
             top: 50px;
         }
 
+        #gameWrapper:fullscreen #touchControls,
+        #gameWrapper:-webkit-full-screen #touchControls {
+            display: flex !important;
+            z-index: 9999;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        }
+
         #gameWrapper:fullscreen #gameContainer {
             padding: 0;
         }
