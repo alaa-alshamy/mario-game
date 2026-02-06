@@ -152,6 +152,58 @@ let jumpKeyPressed = false;
 
 // Input handling
 const keys = {};
+let isMobile = false;
+
+// Check if device is mobile/tablet
+function checkMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           (window.innerWidth <= 1024 && window.innerHeight <= 768);
+}
+
+// Touch handling for mobile
+const touchState = {
+    left: false,
+    right: false,
+    jump: false
+};
+
+function handleTouchStart(direction) {
+    touchState[direction] = true;
+    initAudio();
+    
+    // Map touch to keys
+    if (direction === 'left') {
+        keys['ArrowLeft'] = true;
+    } else if (direction === 'right') {
+        keys['ArrowRight'] = true;
+    } else if (direction === 'jump') {
+        keys[' '] = true;
+        keys['ArrowUp'] = true;
+    }
+}
+
+function handleTouchEnd(direction) {
+    touchState[direction] = false;
+    
+    // Unmap touch from keys
+    if (direction === 'left') {
+        keys['ArrowLeft'] = false;
+    } else if (direction === 'right') {
+        keys['ArrowRight'] = false;
+    } else if (direction === 'jump') {
+        keys[' '] = false;
+        keys['ArrowUp'] = false;
+        jumpKeyPressed = false;
+    }
+}
+
+// Prevent default touch behaviors
+document.addEventListener('touchmove', (e) => {
+    if (e.target.closest('.touch-btn')) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
 document.addEventListener('keydown', (e) => {
     keys[e.key] = true;
     if (e.key === ' ' || e.key === 'ArrowUp') {
@@ -161,6 +213,55 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('keyup', (e) => {
     keys[e.key] = false;
 });
+
+// Responsive canvas setup
+function resizeCanvas() {
+    const container = document.querySelector('.game-container');
+    const canvas = document.getElementById('gameCanvas');
+    const touchControls = document.getElementById('touchControls');
+    
+    isMobile = checkMobile();
+    
+    if (isMobile) {
+        // Show touch controls
+        touchControls.classList.add('active');
+        document.querySelector('.keyboard-hint').style.display = 'none';
+        document.querySelector('.touch-hint').style.display = 'block';
+        
+        // Calculate available space
+        const controlsHeight = touchControls.classList.contains('active') ? 120 : 0;
+        const uiHeight = 150; // Space for score and buttons
+        const availableHeight = window.innerHeight - uiHeight - controlsHeight - 40;
+        const availableWidth = window.innerWidth - 40;
+        
+        // Calculate scale to fit canvas
+        const scaleX = availableWidth / 800;
+        const scaleY = availableHeight / 600;
+        const scale = Math.min(scaleX, scaleY, 1);
+        
+        // Apply size
+        canvas.style.width = (800 * scale) + 'px';
+        canvas.style.height = (600 * scale) + 'px';
+    } else {
+        // Desktop view
+        touchControls.classList.remove('active');
+        document.querySelector('.keyboard-hint').style.display = 'block';
+        document.querySelector('.touch-hint').style.display = 'none';
+        
+        const maxWidth = Math.min(window.innerWidth - 40, 800);
+        const scale = maxWidth / 800;
+        
+        canvas.style.width = (800 * scale) + 'px';
+        canvas.style.height = (600 * scale) + 'px';
+    }
+}
+
+// Handle orientation change
+window.addEventListener('orientationchange', () => {
+    setTimeout(resizeCanvas, 100);
+});
+
+window.addEventListener('resize', resizeCanvas);
 
 // Mario object
 const mario = {
@@ -1669,10 +1770,17 @@ function restartGame() {
     animationId = requestAnimationFrame(gameLoop);
 }
 
+// Make touch functions global for HTML onclick handlers
+window.handleTouchStart = handleTouchStart;
+window.handleTouchEnd = handleTouchEnd;
+
 // Start the game
 window.onload = function() {
     loadLevel(1);
     animationId = requestAnimationFrame(gameLoop);
+    
+    // Initialize responsive canvas
+    resizeCanvas();
     
     // Initialize audio on first user interaction (required by browsers)
     const initAudioOnInteraction = function() {
@@ -1683,3 +1791,29 @@ window.onload = function() {
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
 };
+
+// Mobile optimizations
+// Prevent scrolling on mobile
+window.addEventListener('touchmove', function(e) {
+    if (e.target === document.getElementById('gameCanvas') || 
+        e.target.closest('.touch-controls')) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+// Prevent zoom on double tap
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
+
+// Handle visibility change (pause when tab is not active)
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // Optional: pause game logic here if needed
+    }
+});
