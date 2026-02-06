@@ -6,6 +6,142 @@ const JUMP_FORCE = -15;
 const MOVE_SPEED = 5;
 const FRICTION = 0.8;
 
+// Sound System
+let soundEnabled = true;
+let audioContext = null;
+
+function initAudio() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundBtn').textContent = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+}
+
+// Sound effect functions using Web Audio API
+function playJumpSound() {
+    if (!soundEnabled || !audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function playCoinSound() {
+    if (!soundEnabled || !audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(987, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(1318, audioContext.currentTime + 0.08);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+function playStompSound() {
+    if (!soundEnabled || !audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function playBlockHitSound() {
+    if (!soundEnabled || !audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+function playDieSound() {
+    if (!soundEnabled || !audioContext) return;
+    
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.5);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+function playWinSound() {
+    if (!soundEnabled || !audioContext) return;
+    
+    const notes = [523, 659, 783, 1046]; // C, E, G, C
+    notes.forEach((freq, i) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + i * 0.1);
+        
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.3);
+        
+        oscillator.start(audioContext.currentTime + i * 0.1);
+        oscillator.stop(audioContext.currentTime + i * 0.1 + 0.3);
+    });
+}
+
 // Game state
 let score = 0;
 let coins = 0;
@@ -339,6 +475,7 @@ function checkLevelComplete() {
     const levelData = levels[currentLevel];
     if (mario.x >= levelData.endX) {
         if (currentLevel < MAX_LEVELS) {
+            playWinSound();
             loadLevel(currentLevel + 1);
         } else {
             // Victory - game complete, restart from level 1
@@ -376,6 +513,7 @@ function updateMario() {
         mario.vy = JUMP_FORCE;
         mario.onGround = false;
         jumpKeyPressed = true;
+        playJumpSound();
     } else if (!jumpKey) {
         // Jump key released
         jumpKeyPressed = false;
@@ -450,6 +588,8 @@ function updateMario() {
                 score += 100;
                 coins++;
                 updateScore();
+                playBlockHitSound();
+                playCoinSound();
 
                 // Add coin popping animation
                 blockAnimations.push({
@@ -467,6 +607,7 @@ function updateMario() {
 
     // Keep Mario in bounds
     if (mario.y > canvas.height + 100) {
+        playDieSound();
         restartGame();
     }
 
@@ -545,6 +686,7 @@ function updateCoins() {
                 coins++;
                 score += 50;
                 updateScore();
+                playCoinSound();
                 // Sparkle effect when collecting
                 createParticles(coin.x + coin.width / 2, coin.y + coin.height / 2, 8, '#FFD700');
             }
@@ -625,10 +767,12 @@ function updateGoombas() {
                 mario.vy = -8;
                 score += 200;
                 updateScore();
+                playStompSound();
                 // Screen shake and particles on stomp
                 screenShake = 10;
                 createParticles(goomba.x + goomba.width / 2, goomba.y + goomba.height / 2, 10, '#8B4513');
             } else {
+                playDieSound();
                 restartGame();
             }
         }
@@ -1529,4 +1673,13 @@ function restartGame() {
 window.onload = function() {
     loadLevel(1);
     animationId = requestAnimationFrame(gameLoop);
+    
+    // Initialize audio on first user interaction (required by browsers)
+    const initAudioOnInteraction = function() {
+        initAudio();
+        document.removeEventListener('click', initAudioOnInteraction);
+        document.removeEventListener('keydown', initAudioOnInteraction);
+    };
+    document.addEventListener('click', initAudioOnInteraction);
+    document.addEventListener('keydown', initAudioOnInteraction);
 };

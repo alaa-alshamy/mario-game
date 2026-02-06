@@ -71,9 +71,12 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div class="controls">
         <p><strong>Controls:</strong> ← → to move | SPACE or ↑ to jump</p>
-        <div class="score">Level: <span id="levelValue">1</span> | Score: <span id="scoreValue">0</span> | Coins: <span id="coinValue">0</span></div>
-        <button onclick="restartGame()">Restart Game</button>
-    </div>
+            <div class="score">Level: <span id="levelValue">1</span> | Score: <span id="scoreValue">0</span> | Coins: <span id="coinValue">0</span></div>
+            <button onclick="restartGame()">Restart Game</button>
+            <div style="margin-top: 10px;">
+                <button onclick="toggleSound()" id="soundBtn">🔊 Sound On</button>
+            </div>
+        </div>
 </div>
 
 <script src="mario.js"></script>
